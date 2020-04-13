@@ -19,6 +19,7 @@ package com.bluepowermod.init;
 
 import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.api.multipart.IBPPartBlock;
+import com.bluepowermod.api.wire.redstone.RedwireType;
 import com.bluepowermod.block.*;
 import com.bluepowermod.block.gates.BlockGateBase;
 import com.bluepowermod.block.machine.*;
@@ -336,13 +337,16 @@ public class BPBlocks {
 
         //Wires
         //blockAlloyWire = new Block[MinecraftColor.VALID_COLORS.length * 2 + 2];
+        //blockAlloyWire = new Block[2];
+        blockAlloyWire = new Block[1];
 
-        //blockAlloyWire[0] = new BlockAlloyWire(RedwireType.BLUESTONE.getName()).setWIP(true);
-        //blockAlloyWire[MinecraftColor.VALID_COLORS.length + 1] =  new BlockAlloyWire(RedwireType.RED_ALLOY.getName()).setWIP(true);
+        //blockAlloyWire[0] = new BlockAlloyWire(RedwireType.BLUESTONE.getName());
+        //blockAlloyWire[1] =  new BlockAlloyWire(RedwireType.RED_ALLOY.getName());
+        blockAlloyWire[0] =  new BlockAlloyWire(RedwireType.RED_ALLOY.getName());
 
         //for (int i = 0; i < MinecraftColor.VALID_COLORS.length; i++) {
-           // blockAlloyWire[i+1] = new BlockInsulatedAlloyWire(RedwireType.BLUESTONE.getName(), MinecraftColor.VALID_COLORS[i]).setWIP(true);
-           // blockAlloyWire[i + MinecraftColor.VALID_COLORS.length +2] = new BlockInsulatedAlloyWire(RedwireType.RED_ALLOY.getName(), MinecraftColor.VALID_COLORS[i]).setWIP(true);
+        //    blockAlloyWire[i+1] = new BlockInsulatedAlloyWire(RedwireType.BLUESTONE.getName(), MinecraftColor.VALID_COLORS[i]).setWIP(true);
+        //    blockAlloyWire[i + MinecraftColor.VALID_COLORS.length +2] = new BlockInsulatedAlloyWire(RedwireType.RED_ALLOY.getName(), MinecraftColor.VALID_COLORS[i]).setWIP(true);
         //}
     }
 

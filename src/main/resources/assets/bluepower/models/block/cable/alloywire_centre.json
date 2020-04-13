@@ -1,5 +1,9 @@
 {
     "parent": "block/block",
+    "textures": {
+        "particle": "bluepower:blocks/wire/wire",
+        "wire": "bluepower:blocks/wire/wire"
+    },
     "elements": [
         {
             "from": [ 7.0, 0.0, 7.0 ], 

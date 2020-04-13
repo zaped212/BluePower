@@ -50,29 +50,16 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
     private static final BooleanProperty CONNECTED_BACK = BooleanProperty.create("connected_back");
     private static final BooleanProperty CONNECTED_LEFT = BooleanProperty.create("connected_left");
     private static final BooleanProperty CONNECTED_RIGHT = BooleanProperty.create("connected_right");
-    private static final BooleanProperty JOIN_FRONT = BooleanProperty.create("join_front");
-    private static final BooleanProperty JOIN_BACK = BooleanProperty.create("join_back");
-    private static final BooleanProperty JOIN_LEFT = BooleanProperty.create("join_left");
-    private static final BooleanProperty JOIN_RIGHT = BooleanProperty.create("join_right");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected final VoxelShape[] shapes = makeShapes();
 
-    float shape_width = 2;
-    float shape_gap = 0;
-    float shape_height = 2;
+    public BlockWireBase() {
 
-    public BlockWireBase( float shape_width, float shape_gap, float shape_height ) {
         super(Material.IRON, TileWire.class);
         this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.UP)
                 .with(CONNECTED_FRONT, false).with(CONNECTED_BACK, false)
                 .with(CONNECTED_LEFT, false).with(CONNECTED_RIGHT, false)
-                .with(JOIN_FRONT, false).with(JOIN_BACK, false)
-                .with(JOIN_LEFT, false).with(JOIN_RIGHT, false)
                 .with(WATERLOGGED, false));
-
-        this.shape_width = shape_width;
-        this.shape_gap = shape_gap;
-        this.shape_height = shape_height;
     }
 
     @Override
@@ -114,16 +101,20 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
 
     protected VoxelShape[] makeShapes() {
 
-        float f = 8.0F - this.shape_width;
-        float f1 = 8.0F + this.shape_width;
-        float f2 = 8.0F - this.shape_width;
-        float f3 = 8.0F + this.shape_width;
+        float width = 2;
+        float gap = 0;
+        float height = 2;
 
-        VoxelShape voxelshape = Block.makeCuboidShape((double)f, 0.0D, (double)f, (double)f1, (double)this.shape_height, (double)f1);
-        VoxelShape voxelshape1 = Block.makeCuboidShape((double)f2, (double)this.shape_gap, 0.0D, (double)f3, (double)this.shape_height, (double)f3);
-        VoxelShape voxelshape2 = Block.makeCuboidShape((double)f2, (double)this.shape_gap, (double)f2, (double)f3, (double)this.shape_height, 16.0D);
-        VoxelShape voxelshape3 = Block.makeCuboidShape(0.0D, (double)this.shape_gap, (double)f2, (double)f3, (double)this.shape_height, (double)f3);
-        VoxelShape voxelshape4 = Block.makeCuboidShape((double)f2, (double)this.shape_gap, (double)f2, 16.0D, (double)this.shape_height, (double)f3);
+        float f = 8.0F - width;
+        float f1 = 8.0F + width;
+        float f2 = 8.0F - width;
+        float f3 = 8.0F + width;
+
+        VoxelShape voxelshape = Block.makeCuboidShape((double)f, 0.0D, (double)f, (double)f1, (double)height, (double)f1);
+        VoxelShape voxelshape1 = Block.makeCuboidShape((double)f2, (double)gap, 0.0D, (double)f3, (double)height, (double)f3);
+        VoxelShape voxelshape2 = Block.makeCuboidShape((double)f2, (double)gap, (double)f2, (double)f3, (double)height, 16.0D);
+        VoxelShape voxelshape3 = Block.makeCuboidShape(0.0D, (double)gap, (double)f2, (double)f3, (double)height, (double)f3);
+        VoxelShape voxelshape4 = Block.makeCuboidShape((double)f2, (double)gap, (double)f2, 16.0D, (double)height, (double)f3);
         VoxelShape voxelshape5 = VoxelShapes.or(voxelshape1, voxelshape4);
         VoxelShape voxelshape6 = VoxelShapes.or(voxelshape2, voxelshape3);
 
@@ -197,7 +188,7 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
 
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder){
-        builder.add(FACING, CONNECTED_FRONT, CONNECTED_BACK, CONNECTED_LEFT, CONNECTED_RIGHT, JOIN_FRONT, JOIN_BACK, JOIN_LEFT, JOIN_RIGHT, WATERLOGGED);
+        builder.add(FACING, CONNECTED_FRONT, CONNECTED_BACK, CONNECTED_LEFT, CONNECTED_RIGHT, WATERLOGGED);
     }
 
     private BlockState getStateForPos(World world, BlockPos pos, BlockState state, Direction face){
@@ -211,8 +202,7 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
         for (Direction d : directions) {
             TileEntity tileEntity = world.getTileEntity(pos.offset(d));
 
-            boolean can_join = canJoinTo( world, pos, state, face );
-            boolean can_connect = canConnectTo(world, pos, state, face);
+            boolean can_connect = canConnectTo(world, pos.offset(d), state, face);
 
             // Check to see if we can connect / join with the neighbor
             switch (state.get(FACING)) {
@@ -221,19 +211,15 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
                     switch (d) {
                         case EAST:
                             state = state.with(CONNECTED_RIGHT, can_connect);
-                            state = state.with(JOIN_RIGHT, can_join && can_connect);
                             break;
                         case WEST:
                             state = state.with(CONNECTED_LEFT, can_connect);
-                            state = state.with(JOIN_LEFT, can_join && can_connect);
                             break;
                         case NORTH:
                             state = state.with(CONNECTED_FRONT, can_connect);
-                            state = state.with(JOIN_FRONT, can_join && can_connect);
                             break;
                         case SOUTH:
                             state = state.with(CONNECTED_BACK, can_connect);
-                            state = state.with(JOIN_BACK, can_join && can_connect);
                             break;
                     }
                     break;
@@ -241,19 +227,15 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
                     switch (d) {
                         case WEST:
                             state = state.with(CONNECTED_RIGHT, can_connect);
-                            state = state.with(JOIN_RIGHT, can_join && can_connect);
                             break;
                         case EAST:
                             state = state.with(CONNECTED_LEFT, can_connect);
-                            state = state.with(JOIN_LEFT, can_join && can_connect);
                             break;
                         case UP:
                             state = state.with(CONNECTED_FRONT, can_connect);
-                            state = state.with(JOIN_FRONT, can_join && can_connect);
                             break;
                         case DOWN:
                             state = state.with(CONNECTED_BACK, can_connect);
-                            state = state.with(JOIN_BACK, can_join && can_connect);
                             break;
                     }
                     break;
@@ -261,19 +243,15 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
                     switch (d) {
                         case EAST:
                             state = state.with(CONNECTED_RIGHT, can_connect);
-                            state = state.with(JOIN_RIGHT, can_join && can_connect);
                             break;
                         case WEST:
                             state = state.with(CONNECTED_LEFT, can_connect);
-                            state = state.with(JOIN_LEFT, can_join && can_connect);
                             break;
                         case UP:
                             state = state.with(CONNECTED_FRONT, can_connect);
-                            state = state.with(JOIN_FRONT, can_join && can_connect);
                             break;
                         case DOWN:
                             state = state.with(CONNECTED_BACK, can_connect);
-                            state = state.with(JOIN_BACK, can_join && can_connect);
                             break;
                     }
                     break;
@@ -281,19 +259,15 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
                     switch (d) {
                         case NORTH:
                             state = state.with(CONNECTED_RIGHT, can_connect);
-                            state = state.with(JOIN_RIGHT, can_join && can_connect);
                             break;
                         case SOUTH:
                             state = state.with(CONNECTED_LEFT, can_connect);
-                            state = state.with(JOIN_LEFT, can_join && can_connect);
                             break;
                         case UP:
                             state = state.with(CONNECTED_FRONT, can_connect);
-                            state = state.with(JOIN_FRONT, can_join && can_connect);
                             break;
                         case DOWN:
                             state = state.with(CONNECTED_BACK, can_connect);
-                            state = state.with(JOIN_BACK, can_join && can_connect);
                             break;
                     }
                     break;
@@ -301,19 +275,15 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
                     switch (d) {
                         case SOUTH:
                             state = state.with(CONNECTED_RIGHT, can_connect);
-                            state = state.with(JOIN_RIGHT, can_join && can_connect);
                             break;
                         case NORTH:
                             state = state.with(CONNECTED_LEFT, can_connect);
-                            state = state.with(JOIN_LEFT, can_join && can_connect);
                             break;
                         case UP:
                             state = state.with(CONNECTED_FRONT, can_connect);
-                            state = state.with(JOIN_FRONT, can_join && can_connect);
                             break;
                         case DOWN:
                             state = state.with(CONNECTED_BACK, can_connect);
-                            state = state.with(JOIN_BACK, can_join && can_connect);
                             break;
                     }
                 }
@@ -328,17 +298,9 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
         return getStateForPos(context.getWorld(), context.getPos(), getDefaultState().with(FACING, context.getFace()), context.getFace());
     }
 
-    protected boolean canConnectTo(World world, BlockPos pos, BlockState state, Direction face) {
+    protected boolean canConnectTo(World world, BlockPos neighbor_pos, BlockState cur_state, Direction cur_face) {
         /* Limit base blocks to connect only to other BlockWireBase objects */
-        if( this.getClass() == world.getBlockState( pos ).getBlock().getClass() ) {
-            return true;
-        }
-        return false;
-    }
-
-    protected boolean canJoinTo(World world, BlockPos pos, BlockState state, Direction face) {
-        /* Limit base blocks to join only to other BlockWireBase objects */
-        if( this.getClass() == world.getBlockState( pos ).getBlock().getClass() ) {
+        if( this == world.getBlockState( neighbor_pos ).getBlock() ) {
             return true;
         }
         return false;
