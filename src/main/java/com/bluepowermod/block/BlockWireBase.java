@@ -194,9 +194,11 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
     private BlockState getStateForPos(World world, BlockPos pos, BlockState state, Direction face){
         List<Direction> directions = new ArrayList<>(FACING.getAllowedValues());
 
-        //Make sure the cable is on the same side of the block
-        directions.removeIf(d -> world.getBlockState(pos.offset(d)).getBlock() instanceof BlockWireBase
-                && world.getBlockState(pos.offset(d)).get(FACING) != face);
+        boolean new_connected_front = state.get( CONNECTED_FRONT );
+        boolean new_connected_back = state.get( CONNECTED_BACK );
+        boolean new_connected_left = state.get( CONNECTED_LEFT );
+        boolean new_connected_right = state.get( CONNECTED_RIGHT );
+
 
         //Populate all directions
         for (Direction d : directions) {
@@ -210,86 +212,101 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
                 case DOWN:
                     switch (d) {
                         case EAST:
-                            state = state.with(CONNECTED_RIGHT, can_connect);
+                            new_connected_right = can_connect;
                             break;
                         case WEST:
-                            state = state.with(CONNECTED_LEFT, can_connect);
+                            new_connected_left = can_connect;
                             break;
                         case NORTH:
-                            state = state.with(CONNECTED_FRONT, can_connect);
+                            new_connected_front = can_connect;
                             break;
                         case SOUTH:
-                            state = state.with(CONNECTED_BACK, can_connect);
+                            new_connected_back = can_connect;
                             break;
                     }
                     break;
                 case NORTH:
                     switch (d) {
                         case WEST:
-                            state = state.with(CONNECTED_RIGHT, can_connect);
+                            new_connected_right = can_connect;
                             break;
                         case EAST:
-                            state = state.with(CONNECTED_LEFT, can_connect);
+                            new_connected_left = can_connect;
                             break;
                         case UP:
-                            state = state.with(CONNECTED_FRONT, can_connect);
+                            new_connected_front = can_connect;
                             break;
                         case DOWN:
-                            state = state.with(CONNECTED_BACK, can_connect);
+                            new_connected_back = can_connect;
                             break;
                     }
                     break;
                 case SOUTH:
                     switch (d) {
                         case EAST:
-                            state = state.with(CONNECTED_RIGHT, can_connect);
+                            new_connected_right = can_connect;
                             break;
                         case WEST:
-                            state = state.with(CONNECTED_LEFT, can_connect);
+                            new_connected_left = can_connect;
                             break;
                         case UP:
-                            state = state.with(CONNECTED_FRONT, can_connect);
+                            new_connected_front = can_connect;
                             break;
                         case DOWN:
-                            state = state.with(CONNECTED_BACK, can_connect);
+                            new_connected_back = can_connect;
                             break;
                     }
                     break;
                 case EAST:
                     switch (d) {
                         case NORTH:
-                            state = state.with(CONNECTED_RIGHT, can_connect);
+                            new_connected_right = can_connect;
                             break;
                         case SOUTH:
-                            state = state.with(CONNECTED_LEFT, can_connect);
+                            new_connected_left = can_connect;
                             break;
                         case UP:
-                            state = state.with(CONNECTED_FRONT, can_connect);
+                            new_connected_front = can_connect;
                             break;
                         case DOWN:
-                            state = state.with(CONNECTED_BACK, can_connect);
+                            new_connected_back = can_connect;
                             break;
                     }
                     break;
                 case WEST:
                     switch (d) {
                         case SOUTH:
-                            state = state.with(CONNECTED_RIGHT, can_connect);
+                            new_connected_right = can_connect;
                             break;
                         case NORTH:
-                            state = state.with(CONNECTED_LEFT, can_connect);
+                            new_connected_left = can_connect;
                             break;
                         case UP:
-                            state = state.with(CONNECTED_FRONT, can_connect);
+                            new_connected_front = can_connect;
                             break;
                         case DOWN:
-                            state = state.with(CONNECTED_BACK, can_connect);
+                            new_connected_back = can_connect;
                             break;
                     }
                 }
         }
         IFluidState fluidstate = world.getFluidState(pos);
-        return state.with(WATERLOGGED, fluidstate.getFluid() == Fluids.WATER);
+        boolean new_waterlogged_state = fluidstate.getFluid() == Fluids.WATER;
+
+        /* check if we need to update our state */
+        if( ( state.get( CONNECTED_FRONT ) != new_connected_front ) ||
+            ( state.get( CONNECTED_BACK ) != new_connected_back ) ||
+            ( state.get( CONNECTED_LEFT ) != new_connected_left ) ||
+            ( state.get( CONNECTED_RIGHT ) != new_connected_right ) ||
+            ( state.get( WATERLOGGED ) != new_waterlogged_state ) )
+            {
+            state = state.with( CONNECTED_FRONT, new_connected_front )
+                         .with( CONNECTED_BACK, new_connected_back )
+                         .with( CONNECTED_LEFT, new_connected_left )
+                         .with( CONNECTED_RIGHT, new_connected_right )
+                         .with( WATERLOGGED, new_waterlogged_state );
+            }
+        return state;
     }
 
     @Nullable
@@ -299,10 +316,12 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
     }
 
     protected boolean canConnectTo(World world, BlockPos neighbor_pos, BlockState cur_state, Direction cur_face) {
-        /* Limit base blocks to connect only to other BlockWireBase objects */
-        if( this == world.getBlockState( neighbor_pos ).getBlock() ) {
-            return true;
-        }
+        /* Check if the neighbor block is of the same type */
+        if( world.getBlockState(neighbor_pos).getBlock() instanceof BlockWireBase )
+            {
+            /* Only connect to instances that are facing the same direction */
+            return world.getBlockState(neighbor_pos).get(FACING) == cur_face;
+            }
         return false;
     }
 }
