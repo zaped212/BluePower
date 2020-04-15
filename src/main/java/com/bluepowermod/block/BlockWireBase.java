@@ -8,7 +8,9 @@
 
 package com.bluepowermod.block;
 
+import com.bluepowermod.api.misc.MinecraftColor;
 import com.bluepowermod.block.BlockContainerBase;
+import com.bluepowermod.client.render.IBPColoredBlock;
 import com.bluepowermod.tile.TileBPMultipart;
 import com.bluepowermod.tile.tier1.TileWire;
 
@@ -43,7 +45,7 @@ import java.util.List;
 /**
  * @author MoreThanHidden
  */
-public class BlockWireBase extends BlockContainerBase implements IWaterLoggable {
+public class BlockWireBase extends BlockContainerBase implements IWaterLoggable, IBPColoredBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     private static final BooleanProperty CONNECTED_FRONT = BooleanProperty.create("connected_front");
@@ -323,5 +325,15 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable 
             return world.getBlockState(neighbor_pos).get(FACING) == cur_face;
             }
         return false;
+    }
+
+    @Override
+    public int getColor(IBlockReader world, BlockPos pos, int tintIndex) {
+        return MinecraftColor.RED.getHex();
+    }
+
+    @Override
+    public int getColor(int tintIndex) {
+        return MinecraftColor.RED.getHex();
     }
 }

@@ -1,0 +1,20 @@
+{
+    "textures": {
+        "particle": "bluepower:blocks/wire/wire",
+        "wire": "bluepower:blocks/wire/wire"
+    },
+    "elements": [
+        {
+            "from": [ 7.0, 0.0, 0.0 ], 
+            "to": [ 9.0, 2.0, 7.0 ], 
+            "faces": {
+                "north": { "texture": "#wire", "tintindex": 1, "uv": [ 7.0, 7.0, 9.0, 9.0 ] },
+                "east": { "texture": "#wire", "tintindex": 1, "uv": [ 9.0, 7.0, 16.0, 9.0 ] },
+                "south": { "texture": "#wire", "tintindex": 1, "uv": [ 7.0, 7.0, 9.0, 9.0 ] },
+                "west": { "texture": "#wire", "tintindex": 1, "uv": [ 9.0, 7.0, 16.0, 9.0 ] },
+                "up": { "texture": "#wire", "tintindex": 1, "uv": [ 9.0, 7.0, 16.0, 9.0 ], "rotation": 270 },
+                "down": { "texture": "#wire", "tintindex": 1, "uv": [ 9.0, 7.0, 16.0, 9.0 ], "rotation": 270 }
+            }
+        }
+    ]
+}
