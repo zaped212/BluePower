@@ -22,13 +22,13 @@ public class BlockInsulatedAlloyWire extends BlockAlloyWire{
     }
 
     @Override
-    protected boolean canConnectTo(World world, BlockPos neighbor_pos, BlockState cur_state, Direction cur_face) {
-        if( ( world.getBlockState(neighbor_pos).getBlock() instanceof BlockInsulatedAlloyWire ) &&
-            ((BlockInsulatedAlloyWire) world.getBlockState(neighbor_pos).getBlock()).color != this.color ) {
+    protected boolean canConnectTo(World world, BlockPos neighbor_pos, BlockState neighbor_state, Direction neighbor_face) {
+        if( ( neighbor_state.getBlock() instanceof BlockInsulatedAlloyWire ) &&
+            (((BlockInsulatedAlloyWire) neighbor_state.getBlock()).color != this.color ) ) {
             /* Colors of insulated wire dont match. Dont allow a connection */
             return false;
         }
-        return super.canConnectTo( world, neighbor_pos, cur_state, cur_face );
+        return super.canConnectTo( world, neighbor_pos, neighbor_state, neighbor_face );
     }
 
     @Override

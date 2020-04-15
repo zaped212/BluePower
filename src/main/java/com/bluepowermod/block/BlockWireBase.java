@@ -206,7 +206,10 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable,
         for (Direction d : directions) {
             TileEntity tileEntity = world.getTileEntity(pos.offset(d));
 
-            boolean can_connect = canConnectTo(world, pos.offset(d), state, face);
+            boolean can_connect = canConnectTo(world,
+                                               pos.offset(d),
+                                               world.getBlockState( pos.offset(d) ),
+                                               d);
 
             // Check to see if we can connect / join with the neighbor
             switch (state.get(FACING)) {
@@ -317,12 +320,12 @@ public class BlockWireBase extends BlockContainerBase implements IWaterLoggable,
         return getStateForPos(context.getWorld(), context.getPos(), getDefaultState().with(FACING, context.getFace()), context.getFace());
     }
 
-    protected boolean canConnectTo(World world, BlockPos neighbor_pos, BlockState cur_state, Direction cur_face) {
+    protected boolean canConnectTo(World world, BlockPos neighbor_pos, BlockState neighbor_state, Direction neighbor_face) {
         /* Check if the neighbor block is of the same type */
-        if( world.getBlockState(neighbor_pos).getBlock() instanceof BlockWireBase )
+        if( neighbor_state.getBlock() instanceof BlockWireBase )
             {
             /* Only connect to instances that are facing the same direction */
-            return world.getBlockState(neighbor_pos).get(FACING) == cur_face;
+            return world.getBlockState(neighbor_pos).get(FACING) == neighbor_face;
             }
         return false;
     }
